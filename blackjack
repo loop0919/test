@@ -1,0 +1,351 @@
+/**
+ * BlackJackは、所持金100コインから最大5戦ブラックジャックを行い、
+ * どれだけコインを増やせるかを楽しむゲームである。
+ * ただし、所持金0コインになった場合、その場でゲームオーバーになってしまう。
+ * 
+ * @author Loop
+ * @copyright by Loop
+ */
+
+import java.util.Random;
+import java.util.Scanner;
+
+public class BlackJack {
+	public static void main(String[] args) {
+		//スキャナーの設定
+		@SuppressWarnings("resource")
+		Scanner in = new Scanner(System.in);
+		
+		//ランダムの設定
+		Random random = new Random();
+		
+		//変数設定
+		int money = 100;	//所持金
+		int draw = 0;		//引き分け回数
+		int win = 0;		//勝利回数
+		int lose = 0;		//敗北回数
+		
+		//カード内容
+		String[] cardlist = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+		int[] cardvalue = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10};
+		
+		//プレイヤーの手札
+		Card player = new Card();
+			player.list = new int[12];		//手札の中身
+			player.value = new int[12];		//手札の数字
+			player.resetCard();
+			
+		//コンピュータの手札
+		Card computer = new Card();
+			computer.list = new int[12];	//手札の中身
+			computer.value = new int[12];	//手札の数字
+			computer.resetCard();
+			
+		//山札
+		Card deck = new Card();
+			deck.list = new int[52];
+			deck.resetDeck();
+		
+		//ゲーム説明
+		System.out.println("【ブラックジャック】");
+		System.out.println("コンピュータディーラとブラックジャックを行います！");
+		System.out.println("最大5回勝負！掛け金0コインになるとゲームオーバー！");
+		System.out.println("どれだけお金を増やせるかな？\n");
+		
+		//ルール説明
+		Outer1:
+		while(true) {
+			System.out.println("ブラックジャックのルール説明を聞きますか？(0:いいえ, 1:はい)");
+			int yesno = in.nextInt();
+			
+			switch(yesno) {
+			case(1):
+				System.out.println("[ルール]");
+				System.out.println("ディーラよりもカードの合計を21に近づけて賭けたチップを2倍にしよう");
+				System.out.println("そのまま勝負するなら「スタンド」");
+				System.out.println("さらにカードをもらうなら「ヒット」");
+				System.out.println("賭けるチップを増やして次の1手で勝負する「ダブルダウン」");
+				System.out.println("いずれかを選択して、手札の合計が21を超えないように近づけよう！\n");
+				System.out.println("[カードの種類]");
+				System.out.println("数字札はそのまま数える");
+				System.out.println("「J,Q,K」は「10」として数える");
+				System.out.println("「A」は「1」にも「11」にもなる\n");
+					
+			case(0):
+				break Outer1;
+			
+			default:
+				System.out.println("[エラー] 入力値が正しくありません！");
+				
+			}
+		}
+		
+		for(int i = 0; i < 5; i++) {
+			//0コインのとき強制終了
+			if(money == 0) {
+				break;
+			}
+			
+			//賭け金選択
+			System.out.println("[" + (i + 1) + "戦目] 賭け金を選んでください。 (所持金：" + money + "コイン)");
+			System.out.println("(※1～100の間で入力してください！)");
+			int bet = in.nextInt();
+			
+			if(bet < 1 || bet > 100) {	//1～100以外の数値の選択をはじく
+				System.out.println("[エラー]入力値が正しくありません！");
+				System.out.println("もう一度入力してください。\n");
+				i--;
+				continue;
+			}
+			
+			if(bet > money) {			//所持金より多い賭け金を指定した場合, 所持金全額を賭ける
+				bet = money;
+				System.out.println("所持金が足りなかったため、全額(" + money + "コイン)を掛けました。");
+			}else {
+				System.out.println(bet + "コインを掛けました。");
+			}
+			
+			//最初のカード配布(プレイヤー)
+			System.out.println("[カード配布] カードを2枚配ります！");
+			for(int j = 0; j < 2; j++) {
+				int cardpos = random.nextInt(deck.len);
+				computer.list[j] = deck.list[cardpos];
+				computer.sum += cardvalue[computer.list[j]];
+				
+				if(computer.list[j] == 0) {
+					computer.aceflg = true;
+				}
+				for(int k = cardpos + 1; k < deck.len; k++) {
+					deck.list[k - 1] = deck.list[k];
+				}
+				computer.len++;
+				deck.len--;
+			}
+			player.checkAce();
+			
+			//最初のカード配布(コンピュータ)
+			for(int j = 0; j < 2; j++) {
+				int cardpos = random.nextInt(deck.len);
+				player.list[j] = deck.list[cardpos];
+				player.sum += cardvalue[player.list[j]];
+				
+				if (player.list[j] == 0) {
+					player.aceflg = true;
+				}
+				for(int k = cardpos + 1; k < deck.len; k++) {
+					deck.list[k - 1] = deck.list[k];
+				}
+				player.len++;
+				deck.len--;
+			}
+			computer.checkAce();
+			
+			//プレイヤーの行動
+			if(player.sum + player.ace == 21) {
+				player.natural = 1;
+				System.out.print("あなたの手札: ");
+				for(int j = 0; j < player.len; j++) {
+					System.out.print(cardlist[player.list[j]] + ", ");
+				}
+				System.out.print("手札の合計: "+(player.sum + player.ace) + "\n");
+				
+				bet = (int)(bet * 1.5);
+				System.out.println("おめでとうございます！ナチュラルブラックジャックです！");
+				
+				System.out.println("\n\nあなたの行動を選んでください。");
+				System.out.println("any:スタンド");
+				int select = in.nextInt();
+				break;
+			}else {
+				Outer2:
+				while(player.sum <= 21) {
+					if(player.sum + player.ace == 21) {
+						System.out.print("あなたの手札: ");
+						for(int j = 0; j < player.len; j++) {
+							System.out.print(cardlist[player.list[j]] + ", ");
+						}
+						System.out.print("手札の合計: "+(player.sum + player.ace) + "\n");
+						
+						bet = (int)(bet * 1.5);
+						System.out.println("ブラックジャック！");
+						
+						System.out.println("\n\nあなたの行動を選んでください。");
+						System.out.println("any:スタンド");
+						int select = in.nextInt();
+						
+					}else {
+						System.out.print("あなたの手札: ");
+						for(int j = 0; j < player.len; j++) {
+							System.out.print(cardlist[player.list[j]] + ", ");
+						}
+						System.out.print("手札の合計: "+(player.sum + player.ace) + "\n");
+						System.out.println("\n\nあなたの行動を選んでください。");
+						System.out.println("0:スタンド, 1:ヒット, 2:ダブルダウン");
+						int select = in.nextInt();
+						
+						Inner:
+						switch(select) {
+						case(0):		//スタンド
+							break Outer2;
+							
+						case(1):		//ヒット
+							int cardpos1 = random.nextInt(deck.len);
+							player.list[player.len] = deck.list[cardpos1];
+							player.sum += cardvalue[player.list[player.len]];
+							
+							if (player.list[player.len] == 0) {
+								player.aceflg = true;
+							}
+							for(int k = cardpos1 + 1; k < deck.len; k++) {
+								deck.list[k - 1] = deck.list[k];
+							}
+							player.len++;
+							deck.len--;
+							break Inner;
+							
+						case(2):		//ダブルダウン
+							bet += bet;
+							if(bet > money) {
+								bet = money;
+							}
+							System.out.println("賭け金を" + bet + "コインに増やしました。");
+							
+							int cardpos2 = random.nextInt(deck.len);
+							player.list[player.len] = deck.list[cardpos2];
+							player.sum += cardvalue[player.list[player.len]];
+							
+							if (player.list[player.len] == 0) {
+								player.aceflg = true;
+							}
+							for(int k = cardpos2 + 1; k < deck.len; k++) {
+								deck.list[k - 1] = deck.list[k];
+							}
+							player.len++;
+							deck.len--;
+							break Outer2;
+							
+						default:
+							System.out.println("[エラー]入力値が正しくありません！");
+							System.out.println("もう一度入力してください。\n");
+							continue Outer2;
+						}
+						
+						player.checkAce();
+						}
+					}
+				}
+			player.checkAce();
+			
+			//コンピュータの行動
+			if(computer.sum + computer.ace == 21) {
+				computer.natural = 1;
+			}
+			while(computer.sum + computer.ace <= 16) {
+				int cardpos3 = random.nextInt(deck.len);
+				computer.list[computer.len] = deck.list[cardpos3];
+				computer.sum += cardvalue[computer.list[computer.len]];
+				
+				if (computer.list[computer.len] == 0) {
+					computer.aceflg = true;
+				}
+				for(int k = cardpos3 + 1; k < deck.len; k++) {
+					deck.list[k - 1] = deck.list[k];
+				}
+				computer.len++;
+				deck.len--;
+				
+				computer.checkAce();
+			}
+			//勝敗判定
+			System.out.print("あなたの手札: ");
+			for(int j = 0; j < player.len; j++) {
+				System.out.print(cardlist[player.list[j]] + ", ");
+			}
+			System.out.print("(手札の合計: " + (player.sum + player.ace) + ") \nvs\n ");
+			System.out.print("コンピュータの手札: ");
+			for(int j = 0; j < computer.len; j++) {
+				System.out.print(cardlist[computer.list[j]] + ", ");
+			}
+			System.out.print("(手札の合計: "+(computer.sum + computer.ace) + ")\n\n");
+			
+			player.resultsum = player.sum + player.ace + player.natural;
+			computer.resultsum = computer.sum + computer.ace + computer.resultsum;
+			
+			if(player.sum > 21) {
+				System.out.println("あなたの負けです(-" + bet + "コイン)");
+				money -= bet;
+				lose++;
+			
+			}else if(computer.sum > 21){
+				System.out.println("あなたの勝ちです(+" + bet + "コイン)");
+				money += bet;
+				win++;
+			
+			}else if(player.resultsum > computer.resultsum) {
+				System.out.println("あなたの勝ちです(+" + bet + "コイン)");
+				money += bet;
+				win++;
+			}else if(player.resultsum == computer.resultsum) {
+				System.out.println("引き分けです(±0コイン)");
+				draw++;
+			}else {
+				System.out.println("あなたの負けです(-" + bet + "コイン)");
+				money -= bet;
+				lose++;
+			}
+			player.resetCard();
+			computer.resetCard();
+			deck.resetDeck();
+		}
+		System.out.println("[結果発表] " + win + "勝" + lose + "敗" + draw + "分け");
+
+		if(money <= 0) {
+			System.out.println("あなたは破産してしまいました…(所持金0コイン)");
+			
+		}else if(money < 100) {
+			System.out.println("あなたは損をしました…(所持金" + money + "コイン)");
+			
+		}else if(money == 100){
+			System.out.println("あなたの所持金は変わりませんでした。(所持金100コイン)");
+			
+		}else {
+			System.out.println("あなたは得をしました！(所持金" + money + "コイン)");
+			
+		}
+		
+		System.out.println("Thank you for playing!! ～Fin.～");
+	}
+	public static class Card{
+		public int[] list;
+		public int[] value;
+		public int len;
+		public int sum;
+		public int resultsum;
+		public int natural;
+		public int ace;
+		public boolean aceflg;
+		
+		public void resetCard() {
+		    this.len = 0;			//手札の枚数
+		    this.sum = 0;			//手札の合計
+		    this.resultsum = 0;		//手札の最終合計 + ナチュラルブラックジャック優先度
+		    this.ace = 0;			//("A"=1 ⇒ 0), ("A"=11 ⇒ +10)
+		    this.natural = 0;		//ナチュラルブラックジャック ⇒ +1
+		    this.aceflg = false;	//"A"があるか？
+		  }
+		
+		public void resetDeck() {
+			this.len = 52;					//カードの枚数リセット
+			for(int i = 0; i < 52; i++) {	//"A", "2", "3", ...と並べる
+				this.list[i] = i % 13;
+			}
+		}
+		public void checkAce() {					//"A" = 1 or 11？
+			if(this.aceflg && this.sum <= 11) {
+				this.ace = 10;
+			}else {
+				this.ace = 0;
+			}
+		}
+	}
+}
