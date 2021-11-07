@@ -1,0 +1,23 @@
+import java.util.Scanner;
+
+public class PrimeNumber {
+	public static void main(String[] args) {
+		Scanner in = new Scanner(System.in);
+		boolean pflg = true;
+		System.out.println("素数かどうかを判定します。整数を入力してください。");
+		int num = in.nextInt();
+		for(int i = 2; i < num; i++) {
+			if(num % i == 0) {
+				pflg = false;
+				break;
+			}
+		}
+		
+		System.out.print(num + "は素数");
+		if(pflg && num >= 2) {
+			System.out.print("です。");
+		}else {
+			System.out.print("ではないです。");
+		}
+	}
+}
