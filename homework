@@ -1,0 +1,156 @@
+// RangeSum
+
+import java.util.Scanner;
+
+public class RangeSum {
+	public static void main(String[] args) {
+		try {
+			Scanner in = new Scanner(System.in);
+			
+			int[] NUM = {10, 15, 12, 8, 3, 2, 20, 23, 5, 1};
+			int sum = 0;
+			
+			System.out.print("一つ目の値を入力 > ");
+			int pt1 = in.nextInt();
+			
+			System.out.print("二つ目の値を入力 > ");
+			int pt2 = in.nextInt();
+			
+			for(int i = 0; i < NUM.length; i++) {
+				System.out.print(NUM[i] +" ");
+			}
+			System.out.println("\n--------------------------");
+			
+			if(pt1 > pt2) {
+				int w = pt1;
+				pt1 = pt2;
+				pt2 = w;
+			}
+			
+			for(int i = pt1; i <= pt2; i++) {
+				sum += NUM[i - 1];
+			}
+			System.out.print("合計は"+ sum +"です");
+			
+		}catch(ArrayIndexOutOfBoundsException e) {
+			System.out.print("【例外】入力範囲が間違っています。[1～10]"+ e);
+		}catch(NumberFormatException e) {
+			System.out.print("【例外】入力が正しくありません。"+ e);
+		}catch(Exception e) {
+			System.out.print("【例外】例外が発生しました。"+ e);
+		}
+	}
+}
+
+//......
+//MaxMin
+
+public class MaxMin {
+	public static void main(String[] args) {
+		int[] NUM = {50, -15, 12, 8, 3, -2, 20, 23, 5, 1};
+		
+		System.out.println("--------- 配列内の値 ---------");
+		for(int i = 0; i < NUM.length; i++) {
+			System.out.print(NUM[i] +" ");
+		}
+		System.out.println("\n------------------------------");
+		int max = Integer.MIN_VALUE;
+		int min = Integer.MAX_VALUE;
+		for(int i = 0; i < NUM.length; i++) {
+			if(NUM[i] > max) {
+				max = NUM[i];
+			}
+			if(NUM[i] < min) {
+				min = NUM[i];
+			}
+		}
+		System.out.print("最大値 = "+ max +", 最小値 = "+ min);
+	}
+}
+
+//.....
+//LinearSearch
+
+import java.util.Scanner;
+
+public class LinearSearch {
+	public static void main(String[] args) {
+			Scanner in = new Scanner(System.in);
+			
+			int[] NUM = {10, 15, 12, 8, 3, 2, 20, 23, 5, 1};
+			boolean is_found = false;
+			
+			System.out.println("-- 配列内の値 --");
+			for(int i = 0; i < NUM.length; i++) {
+				System.out.print(NUM[i] +" ");
+			}
+			System.out.print("\n探索したい値を入力 > ");
+			int num = in.nextInt();
+			for(int i = 0; !is_found && i < NUM.length; i++) {
+				is_found = (num == NUM[i]);
+			}
+			if(is_found) {
+				System.out.print("Found!");
+			}else {
+				System.out.print("Not Found!");
+			}
+	}
+}
+
+//.....
+//ArraySort
+
+import java.util.Scanner;
+
+public class ArraySort {
+	
+	public static void main(String[] args) {
+		Scanner in = new Scanner(System.in);
+		int[] num = {50, -15, 12, 8, 3, -2, 20, 23, 5, 1};
+		
+		System.out.println("並べ替えを選択してください。");
+		System.out.print("昇順：A, 降順：D --> ");
+		String select = in.next();
+		
+		System.out.println("----- 整列前の配列要素 -----");
+		for(int i = 0; i <= num.length - 1; i++) {
+			System.out.print(num[i] +" ");
+		}
+		
+		System.out.println("\n----- 整列後の配列要素 -----");
+		switch(select) {
+		case "A":
+			for(int i = num.length - 1; i > 0; i--) {
+				for(int j = 0; j < i; j++) {
+					if(num[j] > num[j + 1]) {
+						int temp = num[j];
+						num[j] = num[j + 1];
+						num[j + 1] = temp;
+					}
+				}
+			}
+			for(int i = 0; i <= num.length - 1; i++) {
+				System.out.print(num[i] +" ");
+			}
+			break;
+		
+		case "D":
+			for(int i = num.length - 1; i > 0; i--) {
+				for(int j = 0; j < i; j++) {
+					if(num[j] < num[j + 1]) {
+						int temp = num[j];
+						num[j] = num[j + 1];
+						num[j + 1] = temp;
+					}
+				}
+			}
+			for(int i = 0; i <= num.length - 1; i++) {
+				System.out.print(num[i] +" ");
+			}
+			break;
+		
+		default:
+			System.out.print("入力が正しくありません。");
+		}
+	}
+}
