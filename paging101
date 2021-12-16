@@ -1,0 +1,72 @@
+/** 
+ * 現在ページの前後ページを抽出したページングリストを作成する。
+ * 
+ * @author ループ
+ * @version 1.0.1
+ * @since 2021年12月17日
+ * 
+ * @param  {int[]} inList 0番目に総ページ数, 1番目に現在のページ番号を格納する。
+ * @param  {ArrayList<Integer>} middleArray 最初と最後のページ、"..."など以外の出力値を格納する。
+ * @return {ArrayList<String>} outArray 出力するページングリストを格納する。
+ */
+
+package learning;
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Page {
+
+	static int maxPage;
+	static int currentPage;
+	static ArrayList<String> outArray = new ArrayList<String>();
+	
+	public static void main(String[] args) {
+		inputValue();
+		ArrayList<Integer> middleArray = new ArrayList<Integer>();
+		for(int i = 0; i < 5; i++) {
+			middleArray.add(currentPage + i - 2);
+		}
+		// 前後の要素を削る
+		while(middleArray.get(0) <= 1) {
+			middleArray.remove(0);
+		}
+		while(middleArray.get(middleArray.size() - 1) >= maxPage) {
+			middleArray.remove(middleArray.size() - 1);
+		}
+		// 5つの要素を保障
+		while((middleArray.size() < 3) && (middleArray.get(0) >= maxPage - 2)) {
+			middleArray.add(0, middleArray.get(0) - 1);
+		}
+		while((middleArray.size() < 3) && (middleArray.get(middleArray.size() - 1) <= 3)) {
+			middleArray.add(middleArray.get(middleArray.size() - 1) + 1);
+		}
+		
+		outArray.add("1");
+		if(middleArray.get(0) == 3) {
+			outArray.add("2");
+		}else if(middleArray.get(0) >= 4) {
+			outArray.add("...");
+		}
+		for(int i : middleArray) {
+			outArray.add(Integer.valueOf(i).toString());
+		}
+		if(middleArray.get(middleArray.size() - 1) == maxPage - 2) {
+			outArray.add(Integer.valueOf(maxPage - 1).toString());
+		}else if(middleArray.get(middleArray.size() - 1) <= maxPage - 3) {
+			outArray.add("...");
+		}
+		outArray.add(Integer.valueOf(maxPage).toString());
+		
+		System.out.print(outArray);
+	}
+
+	// 総ページ数と現在のページ番号を入力
+	public static void inputValue(){
+		Scanner scanner = new Scanner(System.in);
+		System.out.print("最大ページ数を入力してください。 >> ");
+		maxPage = scanner.nextInt();
+		System.out.print("現在のページ番号を入力してください。 >> ");
+		currentPage = scanner.nextInt();
+	}
+}
