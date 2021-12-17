@@ -7,17 +7,19 @@ import java.util.Scanner;
  * 現在ページの前後ページを抽出したページングリストを作成する。
  * 以下の条件を満たすような設計にした。
  * ・1ページ目と最終ページを表示する。
- * ・遷移したい前後ページ数(nページとする)を入力してもらい、遷移できるようにする。
+ * ・遷移したい前後ページ数を入力してもらい、遷移できるようにする。
  * ・少なくとも5ページは表示する。ただし、総ページ数が5未満ならば全ページ表示する。
  * ・2ページ以上省略する場合「...」で省略文字を入れる。ただし、1ページならば省略しない。
  * 
  * @author 		ループ
- * @version	1.0.
+ * @version		1.0.2
  * @since		2021年12月17日
  * 
  * @param  		{int} maxPage 総ページ数の入力値を格納する。
  * @param		{int} currentPage 現在のページ番号の入力値を格納する。
  * @param		{int} displayPageAmount 表示させたい前後ページ数の入力値を格納する。
+ * @param		{int} guaranteePageAmount 最低限表示したいページ数を格納する。5が格納されている。
+ * @param		{int} omitPageAmount 「...」で省略する最低文字数を格納する。2が格納されている。
  * @param  		{ArrayList<Integer>} middleArray 最初と最後のページ、"..."など以外の出力値を格納する。
  * @return 		{ArrayList<String>} outArray 出力するページングリストを格納する。
  * @throws		java.util.InputMismatchException Scannerに整数以外が入力された場合の例外
