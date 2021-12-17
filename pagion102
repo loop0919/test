@@ -1,0 +1,127 @@
+package learning;
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+/** 
+ * 現在ページの前後ページを抽出したページングリストを作成する。
+ * 以下の条件を満たすような設計にした。
+ * ・1ページ目と最終ページを表示する。
+ * ・遷移したい前後ページ数(nページとする)を入力してもらい、遷移できるようにする。
+ * ・少なくとも5ページは表示する。ただし、総ページ数が5未満ならば全ページ表示する。
+ * ・2ページ以上省略する場合「...」で省略文字を入れる。ただし、1ページならば省略しない。
+ * 
+ * @author 		ループ
+ * @version	1.0.
+ * @since		2021年12月17日
+ * 
+ * @param  		{int} maxPage 総ページ数の入力値を格納する。
+ * @param		{int} currentPage 現在のページ番号の入力値を格納する。
+ * @param		{int} displayPageAmount 表示させたい前後ページ数の入力値を格納する。
+ * @param  		{ArrayList<Integer>} middleArray 最初と最後のページ、"..."など以外の出力値を格納する。
+ * @return 		{ArrayList<String>} outArray 出力するページングリストを格納する。
+ * @throws		java.util.InputMismatchException Scannerに整数以外が入力された場合の例外
+ * @throws		UnderGuaranteePageException 総ページ数が5ページ未満だった場合の例外
+ * @throws		ZeroPageException ページ数が0だった場合の例外
+ * @throws		InvalidPageException 論理的に誤っているページ数が入力された場合の例外
+ * @throws		java.lang.IndexOutOfBoundsException 配列の範囲外の要素を呼び出そうとした場合の例外
+ */
+
+public class Page {
+
+	static int maxPage;
+	static int currentPage;
+	static int displayPageAmount;
+	static int guaranteePageAmount = 5;
+	static int omitPageAmount = 2;
+	static ArrayList<String> outArray = new ArrayList<String>();
+	
+	public static void main(String[] args) {
+		try {
+			Scanner scanner = new Scanner(System.in);
+			
+			//maxPage, currentPage, displayPageAmountを入力する
+			System.out.print("最大ページ数を入力してください。>> ");
+			maxPage = scanner.nextInt();
+			if(maxPage < guaranteePageAmount){
+				throw new UnderGuaranteePageException();
+			}else if(maxPage == 0) {
+				throw new ZeroPageException();
+			}else if(maxPage < 0) {
+				throw new InvalidPageException();
+			}
+			System.out.print("現在のページ番号を入力してください。>> ");
+			currentPage = scanner.nextInt();
+			if(currentPage <= 0 || maxPage < currentPage) {
+				throw new InvalidPageException();
+			}
+			System.out.print("表示させたい前後ページ数を入力してください。>> ");
+			displayPageAmount = scanner.nextInt();
+			if(displayPageAmount <= 0) {
+				throw new InvalidPageException();
+			}
+			// middleArrayの操作
+			// 真ん中の要素を入れる
+			ArrayList<Integer> middleArray = new ArrayList<Integer>();
+			for(int i = -1 * displayPageAmount; i <= displayPageAmount; i++) {
+				if(currentPage + i > 1 && currentPage + i < maxPage) {
+					middleArray.add(currentPage + i);
+				}
+			}
+			// middleArrayの操作
+			// 5つの要素を保障する
+			while((middleArray.size() < guaranteePageAmount - 2) && (middleArray.get(0) >= maxPage - displayPageAmount)) {
+				middleArray.add(0, middleArray.get(0) - 1);
+			}
+			while((middleArray.size() < guaranteePageAmount - 2) && (middleArray.get(middleArray.size() - 1) <= displayPageAmount + 1)) {
+				middleArray.add(middleArray.get(middleArray.size() - 1) + 1);
+			}
+			
+			// outArrayを整理する
+			outArray.add("1");
+			if(middleArray.get(0) == omitPageAmount + 1) {
+				for(int i = 2; i <= omitPageAmount; i++) {
+					outArray.add(Integer.valueOf(i).toString());
+				}
+			}else if(middleArray.get(0) > omitPageAmount + 1) {
+				outArray.add("...");
+			}
+			for(int i : middleArray) {
+				outArray.add(Integer.valueOf(i).toString());
+			}
+			if(middleArray.get(middleArray.size() - 1) == maxPage - omitPageAmount) {
+				for(int i = maxPage - omitPageAmount + 1; i < maxPage; i++) {
+					outArray.add(Integer.valueOf(i).toString());
+				}
+			}else if(middleArray.get(middleArray.size() - 1) < maxPage - omitPageAmount) {
+				outArray.add("...");
+			}
+			outArray.add(Integer.valueOf(maxPage).toString());
+			
+		}catch(java.util.InputMismatchException e) {
+			outArray.add("入力値が整数ではありませんでした。");
+		}catch(UnderGuaranteePageException e) {
+			for(int i = 1; i <= maxPage; i++) {
+				outArray.add(Integer.valueOf(i).toString());
+			}
+		}catch(ZeroPageException e) {
+			outArray.add("ページが見つかりませんでした。");
+		}catch(InvalidPageException e) {
+			outArray.add("入力数値の例外が発生しました。");
+		}catch(java.lang.IndexOutOfBoundsException e) {
+			for(int i = 1; i <= maxPage; i++) {
+				outArray.add(Integer.valueOf(i).toString());
+			}
+		}finally {
+			//　ページングを出力する
+			System.out.println("\n" + "【ページ一覧】");
+			System.out.print(outArray);
+		}
+	}
+}
+// 総ページ数が5ページ未満だった場合の例外
+class UnderGuaranteePageException extends Exception{}
+// ページがなかった場合の例外
+class ZeroPageException extends Exception{}
+// 論理的に誤っているページ数が入力された場合の例外
+class InvalidPageException extends Exception{}
